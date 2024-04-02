@@ -1,0 +1,11 @@
+venv
+.venv
+env
+db.sqlite3
+.vscode
+__pycache__
+/media
+/static
+.next
+node_modules
+static_next
