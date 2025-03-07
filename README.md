@@ -85,35 +85,37 @@ Then, in a separate terminal, we can run `docker ps` to get the container IDs an
 
 ```text
 CONTAINER ID   IMAGE                                COMMAND                  CREATED          STATUS          PORTS                                       NAMES
-f270c44e7fdc   benchmark-wagtail-demo-server_wsgi   "/bin/sh -c 'gunicor…"   15 minutes ago   Up 38 seconds   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   benchmark-wagtail-demo-server_wsgi-1
-db341e0aef14   benchmark-wagtail-demo-static_wsgi   "/docker-entrypoint.…"   20 minutes ago   Up 38 seconds   0.0.0.0:8003->80/tcp, :::8003->80/tcp       benchmark-wagtail-demo-static_wsgi-1
-2015fb7f8c08   benchmark-wagtail-demo-static_next   "/docker-entrypoint.…"   20 minutes ago   Up 38 seconds   0.0.0.0:8004->80/tcp, :::8004->80/tcp       benchmark-wagtail-demo-static_next-1
-e765c8f19d8c   benchmark-wagtail-demo-server_next   "docker-entrypoint.s…"   22 minutes ago   Up 38 seconds   0.0.0.0:8002->3000/tcp, :::8002->3000/tcp   benchmark-wagtail-demo-server_next-1
-65f614e54d68   postgres:14.1                        "docker-entrypoint.s…"   2 hours ago      Up 49 seconds   5432/tcp                                    benchmark-wagtail-demo-db-1
+d22a40679d64   benchmark-wagtail-demo-server_wsgi   "/bin/sh -c 'gunicor…"   20 minutes ago   Up 20 minutes   0.0.0.0:8000->8000/tcp, :::8000->8000/tcp   benchmark-wagtail-demo-server_wsgi-1
+2e41d8d1f2e5   benchmark-wagtail-demo-server_next   "docker-entrypoint.s…"   20 minutes ago   Up 20 minutes   0.0.0.0:8002->3000/tcp, :::8002->3000/tcp   benchmark-wagtail-demo-server_next-1
+da4e4c76ffb1   benchmark-wagtail-demo-static_wsgi   "/docker-entrypoint.…"   20 minutes ago   Up 20 minutes   0.0.0.0:8003->80/tcp, :::8003->80/tcp       benchmark-wagtail-demo-static_wsgi-1
+914bc54f927d   postgres:14.1                        "docker-entrypoint.s…"   20 minutes ago   Up 20 minutes   5432/tcp                                    benchmark-wagtail-demo-db-1
+06855bf9d685   benchmark-wagtail-demo-static_next   "/docker-entrypoint.…"   20 minutes ago   Up 20 minutes   0.0.0.0:8004->80/tcp, :::8004->80/tcp       benchmark-wagtail-demo-static_next-1
 ```
 
 We can then provide those URLs and container IDs to GreenFrame to analyze the energy consumption of each stack:
 
 ```bash
+rm results.txt
 echo '# Results' > results.txt
-echo '## server_wsgi' >> results.txt
-greenframe analyze --samples=10 --containers=f270c44e7fdc,65f614e54d68 http://localhost:8000/ | tee -a results.txt
-echo '## server_next' >> results.txt
-greenframe analyze --samples=10 --containers=e765c8f19d8c http://localhost:8002/ | tee -a results.txt
-echo '## static_wsgi' >> results.txt
-greenframe analyze --samples=10 --containers=db341e0aef14 http://localhost:8003/ | tee -a results.txt
-echo '## static_next' >> results.txt
-greenframe analyze --samples=10 --containers=2015fb7f8c08 http://localhost:8004/ | tee -a results.txt
-echo '## static_wsgi_db' >> results.txt
-greenframe analyze --samples=10 --containers=db341e0aef14,65f614e54d68 http://localhost:8003/ | tee -a results.txt
-echo '## static_next_db' >> results.txt
-greenframe analyze --samples=10 --containers=2015fb7f8c08,65f614e54d68 http://localhost:8004/ | tee -a results.txt
-echo '## server_next_db' >> results.txt
-greenframe analyze --samples=10 --containers=e765c8f19d8c,65f614e54d68 http://localhost:8002/ | tee -a results.txt
-echo '## server_next_full' >> results.txt
-greenframe analyze --samples=10 --containers=e765c8f19d8c,f270c44e7fdc,65f614e54d68 http://localhost:8002/ | tee -a results.txt
 echo '## db' >> results.txt
-greenframe analyze --samples=10 --containers=65f614e54d68 http://localhost:8003/ | tee -a results.txt
+greenframe analyze --samples=20 --containers=914bc54f927d http://localhost:8003/ | tee -a results.txt
+echo '## server_wsgi' >> results.txt
+greenframe analyze --samples=20 --containers=d22a40679d64,914bc54f927d http://localhost:8000/ | tee -a results.txt
+echo '## server_next' >> results.txt
+greenframe analyze --samples=20 --containers=2e41d8d1f2e5 http://localhost:8002/ | tee -a results.txt
+echo '## static_wsgi' >> results.txt
+greenframe analyze --samples=20 --containers=da4e4c76ffb1 http://localhost:8003/ | tee -a results.txt
+echo '## static_next' >> results.txt
+greenframe analyze --samples=20 --containers=06855bf9d685 http://localhost:8004/ | tee -a results.txt
+echo '## static_wsgi_db' >> results.txt
+greenframe analyze --samples=20 --containers=da4e4c76ffb1,914bc54f927d http://localhost:8003/ | tee -a results.txt
+echo '## static_next_db' >> results.txt
+greenframe analyze --samples=20 --containers=06855bf9d685,914bc54f927d http://localhost:8004/ | tee -a results.txt
+echo '## server_next_db' >> results.txt
+greenframe analyze --samples=20 --containers=2e41d8d1f2e5,914bc54f927d http://localhost:8002/ | tee -a results.txt
+echo '## server_next_full' >> results.txt
+greenframe analyze --samples=20 --containers=2e41d8d1f2e5,d22a40679d64,914bc54f927d http://localhost:8002/ | tee -a results.txt
+
 ```
 
 ### Benchmarking results
